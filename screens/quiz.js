@@ -29,7 +29,7 @@ const Quiz = ({ navigation }) => {
       setQues(ques + 1);
       setOptions(shuffleOptions(questions[ques + 1]));
     } else {
-      navigation.navigate("Result"); // ganti sesuai screen yang lo punya
+      navigation.navigate("Result");
     }
   };
 
