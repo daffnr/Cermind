@@ -7,7 +7,7 @@ const Home = ({navigation}) => {
     <View style={styles.container}>
       <Title/>
       <View style={styles.bannerContainer}>
-            <Image source={require('../assets/image.png')}
+            <Image source={require('../assets/splash.png')}
             style={styles.banner}
             resizeMode='contain'
             />
