@@ -1,127 +1,181 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { questions } from '../data/questions';
 
 const Quiz = ({ navigation }) => {
-  const [questions, setQuestions] = useState([]);
-  const [ques, setQues] = useState(0);
-  const [options, setOptions] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [selected, setSelected] = useState(null);
+  const [timer, setTimer] = useState(20);
+  const [correctCount, setCorrectCount] = useState(0);
+  const [startTime] = useState(Date.now()); // Simpan waktu mulai
 
-  const getQuiz = async () => {
-    const url = 'https://opentdb.com/api.php?amount=10&type=multiple';
-    const res = await fetch(url);
-    const data = await res.json();
-    setQuestions(data.results);
-    setOptions(shuffleOptions(data.results[0]));
-  };
-
-  const shuffleOptions = (question) => {
-    const options = [...question.incorrect_answers];
-    options.push(question.correct_answer);
-    return options.sort(() => Math.random() - 0.5);
-  };
+  const currentQuestion = questions[currentIndex];
 
   useEffect(() => {
-    getQuiz();
-  }, []);
-
-  const handleNext = () => {
-    if (ques < questions.length - 1) {
-      setQues(ques + 1);
-      setOptions(shuffleOptions(questions[ques + 1]));
-    } else {
-      navigation.navigate("Result"); // ganti sesuai screen yang lo punya
+    if (timer === 0) {
+      handleNext();
+      return;
     }
+    const interval = setInterval(() => {
+      setTimer(prev => prev - 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [timer]);
+
+  const handleOptionPress = (optionKey) => {
+    setSelected(optionKey);
+    if (optionKey === currentQuestion.answer) {
+      setCorrectCount(prev => prev + 1);
+    }
+    setTimeout(() => {
+      handleNext();
+    }, 500);
   };
 
-  const handleSkip = () => {
-    handleNext();
+  const handleNext = () => {
+    if (currentIndex + 1 === questions.length) {
+      const totalTimeInSeconds = Math.floor((Date.now() - startTime) / 1000);
+      navigation.navigate('Result', {
+        correctCount,
+        totalQuestions: questions.length,
+        totalTimeInSeconds
+      });
+      return;
+    }
+
+    setSelected(null);
+    setTimer(20);
+    setCurrentIndex(prev => prev + 1); // Lanjutkan ke soal berikutnya
+  };
+
+  const renderOptionBox = (value, index) => {
+    const letters = ['A', 'B', 'C', 'D', 'E'];
+    return (
+      <View key={index} style={styles.optionBox}>
+        <Text style={styles.optionNumber}>{value}</Text>
+        <Text style={styles.optionLetter}>{letters[index]}</Text>
+      </View>
+    );
+  };
+
+  const renderChoiceButton = (label) => {
+    const isSelected = selected === label;
+    return (
+      <TouchableOpacity
+        key={label}
+        style={[styles.choiceBtn, isSelected && styles.selectedBtn]}
+        onPress={() => handleOptionPress(label)}>
+        <Text style={styles.choiceText}>{label}</Text>
+      </TouchableOpacity>
+    );
   };
 
   return (
     <View style={styles.container}>
-      {questions.length > 0 ? (
-        <View style={styles.parent}>
-          <View style={styles.top}>
-            <Text style={styles.question}>
-              Q. {decodeURIComponent(questions[ques].question)}
-            </Text>
-          </View>
-
-          <View style={styles.options}>
-            {options.map((option, index) => (
-              <TouchableOpacity key={index} style={styles.optionButton}>
-                <Text style={styles.option}>{decodeURIComponent(option)}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-
-          <View style={styles.bottom}>
-            <TouchableOpacity onPress={handleSkip} style={styles.button}>
-              <Text style={styles.buttonText}>SKIP</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={handleNext} style={styles.button}>
-              <Text style={styles.buttonText}>NEXT</Text>
-            </TouchableOpacity>
-          </View>
+      <View style={styles.topBar}>
+        <Text style={styles.progress}>{currentIndex + 1}/40</Text>
+        <View style={styles.timerBox}>
+          <Text style={styles.timerText}>{`00:${timer < 10 ? '0' : ''}${timer}`}</Text>
         </View>
-      ) : (
-        <Text>Loading...</Text>
-      )}
+      </View>
+
+      <View style={styles.optionRow}>
+        {currentQuestion.options.map(renderOptionBox)}
+      </View>
+
+      <View style={styles.questionBox}>
+        <Text style={styles.questionLabel}>Soal</Text>
+        <Text style={styles.questionValue}>{currentQuestion.question}</Text>
+      </View>
+
+      <View style={styles.choiceList}>
+        {['A', 'B', 'C', 'D', 'E'].map(renderChoiceButton)}
+      </View>
     </View>
   );
 };
 
-export default Quiz;
-
 const styles = StyleSheet.create({
   container: {
-    paddingTop: 40,
-    paddingHorizontal: 20,
-    height: '100%',
-  },
-  top: {
-    marginVertical: 16,
-  },
-  options: {
-    marginVertical: 16,
+    padding: 20,
     flex: 1,
+    backgroundColor: '#fff',
   },
-  bottom: {
-    marginBottom: 12,
-    paddingVertical: 16,
-    justifyContent: 'space-between',
+  topBar: {
     flexDirection: 'row',
-  },
-  button: {
-    backgroundColor: '#184E77',
-    padding: 12,
-    paddingHorizontal: 16,
-    borderRadius: 16,
+    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 30,
+    marginBottom: 20,
   },
-  buttonText: {
-    fontSize: 18,
-    fontWeight: '600',
+  progress: {
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  timerBox: {
+    backgroundColor: 'orange',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 6,
+  },
+  timerText: {
     color: 'white',
+    fontWeight: 'bold',
   },
-  question: {
-    fontSize: 28,
+  optionRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 20,
   },
-  option: {
-    fontSize: 18,
-    fontWeight: '500',
+  optionBox: {
+    alignItems: 'center',
+    width: 40,
+  },
+  optionNumber: {
+    backgroundColor: '#333',
     color: 'white',
+    fontSize: 18,
+    padding: 6,
+    borderRadius: 4,
+    marginBottom: 2,
+    textAlign: 'center',
   },
-  optionButton: {
-    paddingVertical: 12,
-    marginVertical: 6,
-    backgroundColor: '#34A0A4',
-    paddingHorizontal: 12,
-    borderRadius: 12,
+  optionLetter: {
+    fontSize: 14,
+    fontWeight: 'bold',
   },
-  parent:{
-    height: '100%'
-  }
+  questionBox: {
+    backgroundColor: '#ddd',
+    padding: 15,
+    marginBottom: 20,
+    borderRadius: 4,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  questionLabel: {
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  questionValue: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  choiceList: {
+    gap: 10,
+  },
+  choiceBtn: {
+    borderWidth: 1,
+    paddingVertical: 10,
+    borderRadius: 6,
+    alignItems: 'center',
+  },
+  selectedBtn: {
+    backgroundColor: '#000',
+    borderColor: '#000',
+  },
+  choiceText: {
+    color: '#000',
+    fontWeight: 'bold',
+  },
 });
+
+export default Quiz;
