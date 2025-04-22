@@ -63,9 +63,9 @@ const Quiz = ({ navigation }) => {
     return (
       <TouchableOpacity
         key={label}
-        style={[styles.choiceBtn, isSelected && styles.selectedBtn]}
+        style={[styles.choiceBtn, !isSelected && styles.selectedBtn]}
         onPress={() => handleOptionPress(label)}>
-        <Text style={styles.choiceText}>{label}</Text>
+        <Text style={!isSelected ? styles.choiceTextWhite : styles.choiceText}>{label}</Text>
       </TouchableOpacity>
     );
   };
@@ -84,7 +84,7 @@ const Quiz = ({ navigation }) => {
       </View>
 
       <View style={styles.questionBox}>
-        <Text style={styles.questionLabel}>Soal</Text>
+        {/* <Text style={styles.questionLabel}>Soal</Text> */}
         <Text style={styles.questionValue}>{currentQuestion.question}</Text>
       </View>
 
@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#333',
     color: 'white',
     fontSize: 18,
-    padding: 6,
+    padding: 10,
     borderRadius: 4,
     marginBottom: 2,
     textAlign: 'center',
@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     borderRadius: 4,
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
   },
   questionLabel: {
     fontWeight: 'bold',
@@ -170,10 +170,14 @@ const styles = StyleSheet.create({
   },
   selectedBtn: {
     backgroundColor: '#000',
-    borderColor: '#000',
+    borderColor: '#000'
   },
   choiceText: {
     color: '#000',
+    fontWeight: 'bold',
+  },
+  choiceTextWhite: {
+    color: 'white',
     fontWeight: 'bold',
   },
 });

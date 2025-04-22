@@ -1,19 +1,22 @@
 import { StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native'
 import React from 'react'
 import Title from '../components/title'
+import QuestionOptions from '../components/questionOptions'
+
 
 const Home = ({navigation}) => {
   return (
     <View style={styles.container}>
       <Title/>
+      <QuestionOptions/>
       <View style={styles.bannerContainer}>
-            <Image source={require('../assets/splash.png')}
+            <Image source={require('../assets/carousel.png')}
             style={styles.banner}
             resizeMode='contain'
             />
       </View>
       <TouchableOpacity onPress={()=>navigation.navigate("Quiz")} style={styles.button}>
-        <Text style={styles.buttonText}>Start</Text>
+        <Text style={styles.buttonText}>Mulai</Text>
       </TouchableOpacity>
     </View>
   )
@@ -24,7 +27,7 @@ export default Home
 export const styles = StyleSheet.create({
     banner: {
         height:300,
-        width:300,
+        width:700,
     },
     bannerContainer: {
         justifyContent:'center',
@@ -38,7 +41,7 @@ export const styles = StyleSheet.create({
     },
     button:{
         width: '100%',
-        backgroundColor: '#184E77',
+        backgroundColor: 'black',
         padding: 20,
         borderRadius: 16,
         alignItems: 'center',

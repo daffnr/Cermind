@@ -1,25 +1,49 @@
-import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import { StyleSheet, Text, View, Image } from 'react-native';
+import React from 'react';
 
 const Title = () => {
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Selamat datang di Cermind</Text>
-    </View>
-  )
-}
+    <View>
+      <View style={styles.container}>
+        <Text style={styles.title}>Selamat datang di Cermind <Image
+          source={require('../assets/logoCermind.png')}
+          style={styles.logo}
+          resizeMode="contain"
+        />
+        </Text>
+      </View>
+      <View>
+        <Text style={styles.subtitle1}>Hai!</Text>
+        <Text style={styles.subtitle2}>Mau latihan apa hari ini?</Text>
+      </View>
 
-export default Title
+    </View>
+  );
+};
+
+export default Title;
 
 const styles = StyleSheet.create({
-    title:{
-        fontSize:26,
-        fontWight:'8900',
-        marginTop:'30',
-    },
-    container:{
-        paddingVertical: 16,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
+  container: {
+    flexDirection: 'row',
+    marginBottom: 30,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: '700',
+    marginRight: 100,
+    marginTop: 40
+  },
+  logo: {
+    height: 30,
+    width: 40, 
+  },
+  subtitle1: {
+    fontSize: 28,
+    fontWeight: 'bold',   
+  },
+  subtitle2: {
+    fontSize: 21,
+    fontWeight: '500',   
+  },
 });
